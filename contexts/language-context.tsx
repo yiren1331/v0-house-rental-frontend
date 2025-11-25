@@ -70,6 +70,10 @@ const translations = {
     aiResponsePlaceholder:
       "Thank you for your message. Our AI assistant is being integrated. For now, please contact us directly at +60 12-345 6789.",
     typeMessage: "Type your message...",
+
+    // Footer
+    footerTagline: "Finding a house has never been this easy.",
+    allRights: "All rights reserved.",
   },
   ms: {
     // Header
@@ -130,6 +134,10 @@ const translations = {
     aiResponsePlaceholder:
       "Terima kasih atas mesej anda. Pembantu AI kami sedang diintegrasikan. Buat masa ini, sila hubungi kami terus di +60 12-345 6789.",
     typeMessage: "Taip mesej anda...",
+
+    // Footer
+    footerTagline: "Mencari rumah tidak pernah semudah ini.",
+    allRights: "Hak cipta terpelihara.",
   },
 }
 
