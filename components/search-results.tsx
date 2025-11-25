@@ -13,10 +13,12 @@ interface Property {
   location: string
   bedrooms: number
   bathrooms: number
-  price: number
+  price: string
   image_url: string
   furnished: string
-  contact: string
+  contact_number: string
+  description: string
+  address: string
 }
 
 export function SearchResults() {
@@ -25,7 +27,7 @@ export function SearchResults() {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
 
-  const location = searchParams.get("location") || "All"
+  const location = searchParams.get("location") || ""
   const bedrooms = searchParams.get("bedrooms")
   const minPrice = searchParams.get("minPrice")
   const maxPrice = searchParams.get("maxPrice")
@@ -41,8 +43,15 @@ export function SearchResults() {
         // Filter properties based on search params
         let filtered = Array.isArray(data) ? data : []
 
-        if (location && location !== "All") {
-          filtered = filtered.filter((p) => p.location.toLowerCase().includes(location.toLowerCase()))
+        if (location) {
+          filtered = filtered.filter((p) => {
+            const searchText = location.toLowerCase()
+            const titleMatch = p.title?.toLowerCase().includes(searchText)
+            const addressMatch = p.address?.toLowerCase().includes(searchText)
+            const descMatch = p.description?.toLowerCase().includes(searchText)
+            const locationMatch = p.location?.toLowerCase().includes(searchText)
+            return titleMatch || addressMatch || descMatch || locationMatch
+          })
         }
 
         if (bedrooms) {
@@ -50,15 +59,15 @@ export function SearchResults() {
         }
 
         if (minPrice) {
-          filtered = filtered.filter((p) => p.price >= Number.parseInt(minPrice))
+          filtered = filtered.filter((p) => Number.parseFloat(p.price) >= Number.parseInt(minPrice))
         }
 
         if (maxPrice) {
-          filtered = filtered.filter((p) => p.price <= Number.parseInt(maxPrice))
+          filtered = filtered.filter((p) => Number.parseFloat(p.price) <= Number.parseInt(maxPrice))
         }
 
-        if (furnished) {
-          filtered = filtered.filter((p) => p.furnished.toLowerCase() === furnished.toLowerCase())
+        if (furnished && furnished !== "any") {
+          filtered = filtered.filter((p) => p.furnished?.toLowerCase() === furnished.toLowerCase())
         }
 
         setProperties(filtered)
@@ -86,7 +95,7 @@ export function SearchResults() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">{t("searchResults")}</h1>
         <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-          {location !== "All" && <span className="px-3 py-1 bg-muted rounded-full">{location}</span>}
+          {location && <span className="px-3 py-1 bg-muted rounded-full capitalize">{location}</span>}
           {bedrooms && (
             <span className="px-3 py-1 bg-muted rounded-full">
               {bedrooms} {t("bedrooms")}
@@ -94,8 +103,13 @@ export function SearchResults() {
           )}
           {minPrice && <span className="px-3 py-1 bg-muted rounded-full">Min: RM{minPrice}</span>}
           {maxPrice && <span className="px-3 py-1 bg-muted rounded-full">Max: RM{maxPrice}</span>}
-          {furnished && <span className="px-3 py-1 bg-muted rounded-full">{furnished}</span>}
+          {furnished && furnished !== "any" && (
+            <span className="px-3 py-1 bg-muted rounded-full capitalize">{furnished}</span>
+          )}
         </div>
+        <p className="text-muted-foreground mt-2">
+          {properties.length} {properties.length === 1 ? t("property") : t("properties")} {t("found")}
+        </p>
       </div>
 
       {properties.length === 0 ? (

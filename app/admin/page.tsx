@@ -168,12 +168,33 @@ export default function AdminPage() {
         }),
       })
 
+      if (response.status === 402) {
+        const data = await response.json()
+        console.log("[v0] JamAI sync failed:", data)
+
+        toast({
+          title: "JamAI Credits Exhausted",
+          description: data.note || "Your website works without JamAI sync. Continue with your hackathon demo!",
+          variant: "default",
+        })
+        return
+      }
+
       if (!response.ok) {
         const errorText = await response.text()
         console.error("[v0] JamAI sync failed:", errorText)
+
+        let errorMessage = "Failed to sync properties"
+        try {
+          const errorJson = JSON.parse(errorText)
+          errorMessage = errorJson.message || errorJson.details || errorMessage
+        } catch {
+          errorMessage = errorText
+        }
+
         toast({
           title: t("syncError"),
-          description: errorText,
+          description: errorMessage,
           variant: "destructive",
         })
         return
