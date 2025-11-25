@@ -18,21 +18,6 @@ export function Header() {
             <span>{t("brandName")}</span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="#properties"
-              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
-            >
-              {t("properties")}
-            </Link>
-            <Link href="#about" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              {t("about")}
-            </Link>
-            <Link href="#contact" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              {t("contact")}
-            </Link>
-          </div>
-
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
