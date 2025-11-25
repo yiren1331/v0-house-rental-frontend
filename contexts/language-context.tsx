@@ -50,6 +50,13 @@ const translations = {
     beds: "beds",
     bath: "baths",
     contact: "Contact",
+    viewDetails: "View Details",
+    description: "Description",
+    furnishing: "Furnishing Status",
+    viewOnMap: "View on Map",
+    property: "property",
+    properties: "properties",
+    found: "found",
 
     // Features
     whyChooseUs: "Why Choose Us",
@@ -130,6 +137,13 @@ const translations = {
     beds: "bilik",
     bath: "bilik air",
     contact: "Hubungi",
+    viewDetails: "Lihat Butiran",
+    description: "Penerangan",
+    furnishing: "Status Perabot",
+    viewOnMap: "Lihat di Peta",
+    property: "hartanah",
+    properties: "hartanah",
+    found: "ditemui",
 
     // Features
     whyChooseUs: "Mengapa Pilih Kami",
