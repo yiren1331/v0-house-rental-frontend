@@ -164,11 +164,11 @@ export function AIChatbox() {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 bg-gradient-to-br from-primary via-accent to-pink-500 hover:shadow-primary/50 z-50 group"
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 bg-gradient-to-br from-primary via-accent to-pink-500 hover:shadow-primary/50 z-50 group animate-pulse"
           size="icon"
         >
           <MessageCircle className="h-7 w-7 text-white group-hover:scale-110 transition-transform" />
-          <span className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-pulse" />
+          <span className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-ping" />
         </Button>
       )}
 

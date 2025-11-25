@@ -72,9 +72,13 @@ export default function AdminPage() {
   const [deletingProperty, setDeletingProperty] = useState<Property | null>(null)
   const [formData, setFormData] = useState(emptyProperty)
   const [saving, setSaving] = useState(false)
+  const [syncingJamAI, setSyncingJamAI] = useState(false)
+  const [jamaiTables, setJamaiTables] = useState<string[]>([])
+  const [selectedTables, setSelectedTables] = useState<string[]>([])
 
   useEffect(() => {
     fetchProperties()
+    loadJamaiTables()
   }, [])
 
   const fetchProperties = async () => {
@@ -96,6 +100,12 @@ export default function AdminPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadJamaiTables = () => {
+    const tables = ["chat assistant", "hackathon", "hackathon malay"]
+    setJamaiTables(tables)
+    setSelectedTables(tables)
   }
 
   const handleCreate = () => {
@@ -130,19 +140,60 @@ export default function AdminPage() {
     setIsDeleteDialogOpen(true)
   }
 
-  const confirmDelete = async () => {
-    if (!deletingProperty) return
-
-    try {
-      await fetch(`/api/properties/${deletingProperty.id}`, {
-        method: "DELETE",
+  const handleSyncToJamAI = async () => {
+    if (selectedTables.length === 0) {
+      toast({
+        title: t("syncError"),
+        description: "Please select at least one table to sync",
+        variant: "destructive",
       })
-      await fetchProperties()
-    } catch (error) {
-      console.error("Error deleting property:", error)
+      return
+    }
+
+    setSyncingJamAI(true)
+    try {
+      const response = await fetch("/api/jamai/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tables: selectedTables,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("[v0] JamAI sync failed:", errorText)
+        toast({
+          title: t("syncError"),
+          description: errorText,
+          variant: "destructive",
+        })
+        return
+      }
+
+      const data = await response.json()
+      console.log("[v0] JamAI sync result:", data)
+
+      const totalSuccess = Object.values(data.tables as Record<string, any>).reduce(
+        (sum: number, table: any) => sum + table.succeeded,
+        0,
+      )
+
+      toast({
+        title: t("syncSuccess"),
+        description: `${totalSuccess} properties synced to ${selectedTables.length} table(s)`,
+      })
+    } catch (error: any) {
+      console.error("[v0] JamAI sync error:", error)
+      toast({
+        title: t("syncError"),
+        description: error.message,
+        variant: "destructive",
+      })
     } finally {
-      setIsDeleteDialogOpen(false)
-      setDeletingProperty(null)
+      setSyncingJamAI(false)
     }
   }
 
@@ -167,6 +218,26 @@ export default function AdminPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const confirmDelete = async () => {
+    if (!deletingProperty) return
+
+    try {
+      await fetch(`/api/properties/${deletingProperty.id}`, {
+        method: "DELETE",
+      })
+      await fetchProperties()
+    } catch (error) {
+      console.error("Error deleting property:", error)
+    } finally {
+      setIsDeleteDialogOpen(false)
+      setDeletingProperty(null)
+    }
+  }
+
+  const toggleTableSelection = (tableId: string) => {
+    setSelectedTables((prev) => (prev.includes(tableId) ? prev.filter((id) => id !== tableId) : [...prev, tableId]))
   }
 
   const filteredProperties = properties.filter(
@@ -198,6 +269,48 @@ export default function AdminPage() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>{t("jamaiSetup")}</CardTitle>
+            <CardDescription>{t("jamaiSetupDesc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {jamaiTables.length > 0 && (
+              <div className="mb-4 space-y-2">
+                <p className="text-sm font-medium">Select tables to sync:</p>
+                {jamaiTables.map((tableId) => (
+                  <div key={tableId} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={`table-${tableId}`}
+                      checked={selectedTables.includes(tableId)}
+                      onChange={() => toggleTableSelection(tableId)}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <label htmlFor={`table-${tableId}`} className="text-sm">
+                      {tableId}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <Button
+              onClick={handleSyncToJamAI}
+              disabled={syncingJamAI || properties.length === 0 || selectedTables.length === 0}
+              className="gap-2"
+            >
+              {syncingJamAI ? t("syncing") : t("syncProperties")}
+            </Button>
+            {properties.length === 0 && (
+              <p className="mt-2 text-sm text-muted-foreground">No properties to sync. Add some properties first.</p>
+            )}
+            {selectedTables.length === 0 && properties.length > 0 && (
+              <p className="mt-2 text-sm text-muted-foreground">Please select at least one table.</p>
+            )}
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
